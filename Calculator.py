@@ -1,5 +1,6 @@
 from tkinter import *
 
+
 Root = Tk()
 Root.geometry('288x330')
 Root.config(bg = 'black')
@@ -7,14 +8,17 @@ Root.title('Calculator')
 Root.resizable(False, False)
 Root.iconbitmap('G:\Programs\Python\Python Projects\Calculator\Calculator.ico')
 
+
 Number_Sensor = ''
 Expression = ''
 Equation = StringVar()
 
+
 Textbox = Entry(Root, width = 20, textvariable = Equation, font = ('Helvetica 17'), fg = 'white', bg = 'black', borderwidth = 0)
 Textbox.grid(row = 0, column = 0, columnspan = 5, padx = 10, pady = 10)
 
-def Number_Click(Number, Limit_Reached = False, Bracket_Types = [')','}',']']):
+
+def Number_Click(Number, Limit_Reached = False):
     try :
         global Expression 
         global Number_Sensor      
@@ -28,6 +32,7 @@ def Number_Click(Number, Limit_Reached = False, Bracket_Types = [')','}',']']):
         Equation.set('Limit Exceeded')
         Expression = ''
         Number_Sensor = ''
+
 
 def Symbol_Click(Symbol, Limit_Reached = False):
     try :
@@ -52,13 +57,14 @@ def Symbol_Click(Symbol, Limit_Reached = False):
         Expression = ''
         Number_Sensor = ''
 
+
 def Integer_Switch(Term_Division = [], Digits = 0, Limit_Reached = False):
     try :
         global Expression
         global Number_Sensor
         if (Expression == ''):
             raise ValueError("Error")
-        elif (Expression[len(Expression) - 1] in ['+','−','×','/','%']):
+        elif (Expression[len(Expression) - 1] in ['+','−','×','/']):
             raise ValueError("Error")
         elif ('(' in Expression or '{' in Expression or '[' in Expression and ')' in Expression or ')' in Expression or ']' in Expression):
             Term_Division = [Index for Index in range(len(Expression)) if Expression[Index] in ['+','−','×','/','%'] and Expression[Index + 1] in ['(','{','['] and Expression[Index - 1] in [')','}',']']]
@@ -73,6 +79,10 @@ def Integer_Switch(Term_Division = [], Digits = 0, Limit_Reached = False):
                     Expression = '[−' + Expression + ']'
                 elif (Expression[len(Expression) - 1] == ']'):
                     Expression = '(−' + Expression + ')'
+            elif (Expression[0] == '{' and Expression[len(Expression) - 1] == '}' and Expression[max(Term_Division) - 1] != '}'):
+                Expression = '[−' + Expression + ']'
+            elif (Expression[0] == '[' and Expression[len(Expression) - 1] == ']' and Expression[max(Term_Division) - 1] != ']'):
+                Expression = '(−' + Expression + ')'
             elif (Expression[max(Term_Division) + 1] == '('):
                 Expression = Expression[ : max(Term_Division) + 1] + '{−' + Expression[max(Term_Division) + 1 : ] + '}'
             elif (Expression[max(Term_Division) + 1] == '{'): 
@@ -96,21 +106,45 @@ def Integer_Switch(Term_Division = [], Digits = 0, Limit_Reached = False):
         Expression = ''
         Number_Sensor = ''
 
-def Bracket (Term_Division = [], Digits = 0, Limit_Reached = False):
+
+def Bracket (Term_Division = [], Digits = 0, Limit_Reached = False, Clicked = 0):
     try :
         global Expression
         if (Expression == '' ):
             raise ValueError("Error")
-        elif (Expression[len(Expression) - 1] in ['+','-','×','/','%']):
+        elif (Expression[len(Expression) - 1] in ['+','−','×','/']):
             raise ValueError("Error")
-        Term_Division = [Index for Index in range(len(Expression)) if Expression[Index] in ['+','−','×','/','%'] and Expression[Index + 1] in ['(','{','['] and Expression[Index - 1] in [')','}',']']]
+        Term_Division = [Index for Index in range(len(Expression)) if Expression[Index] in ['+','−','×','/'] and Expression[Index + 1] in ['(','{','['] and Expression[Index - 1] in [')','}',']']]
         if (Term_Division == []):
             if (Expression[len(Expression) - 1] not in [')','}',']']):
-                Term_Division = [Index for Index in range(len(Expression)) if Expression[Index] in ['+','−','×','/','%'] and Expression[Index - 1] in [')','}',']']]
+                Term_Division = [Index for Index in range(len(Expression)) if Expression[Index] in ['+','−','×','/'] and Expression[Index - 1] in [')','}',']']]
                 if (Term_Division == []):
-                    Expression = '(' + Expression + ')'
+                    if (Expression[len(Expression) - 1] == ')'):
+                        Expression = '{' + Expression + '}'
+                    elif (Expression[len(Expression) - 1] == '}'):
+                        Expression = '[' + Expression + ']'
+                    elif (Expression[len(Expression) - 1] == ']'):
+                        Expression = '(' + Expression + ')'
+                    else : 
+                        Expression = '(' + Expression + ')'
+                elif ('+' in Expression[max(Term_Division) + 1 : ] or '−' in Expression[max(Term_Division) + 1 : ] or '×' in Expression[max(Term_Division) + 1 : ] or '/' in Expression[max(Term_Division) + 1 : ]):
+                    if (Expression[len(Expression) - 1] == ')'):
+                        Expression = Expression[ : max(Term_Division) + 1] + '{' + Expression[max(Term_Division) + 1 : ] + '}'
+                    elif (Expression[len(Expression) - 1] == '}'):
+                        Expression = Expression[ : max(Term_Division) + 1] + '[' + Expression[max(Term_Division) + 1 : ] + ']'
+                    elif (Expression[len(Expression) - 1] == ']'):
+                        Expression = Expression[ : max(Term_Division) + 1] + '(' + Expression[max(Term_Division) + 1 : ] + ')'
+                    else :
+                        Expression = Expression[ : max(Term_Division) + 1] + '(' + Expression[max(Term_Division) + 1 : ] + ')'
                 else :
-                    Expression = Expression[ : max(Term_Division) + 1] + '(' + Expression[max(Term_Division) + 1 : ] + ')'
+                    if (Expression[0] == '('):
+                        Expression = '{' + Expression + '}'
+                    elif (Expression[0] == '{'):
+                        Expression = '[' + Expression + ']'
+                    elif (Expression[0] == '['):
+                        Expression = '(' + Expression + ')'
+                    else :
+                        Expression = '(' + Expression + ')'
             else :
                 if (Expression[len(Expression) - 1] == ')'):
                     Expression = '{' + Expression + '}'
@@ -118,12 +152,26 @@ def Bracket (Term_Division = [], Digits = 0, Limit_Reached = False):
                     Expression = '[' + Expression + ']'
                 elif (Expression[len(Expression) - 1] == ']'):
                     Expression = '(' + Expression + ')'
-        elif (Expression[max(Term_Division) + 1] == '('):
-            Expression = Expression[ : max(Term_Division) + 1] + '{' + Expression[max(Term_Division) + 1 : ] + '}'
-        elif (Expression[max(Term_Division) + 1] == '{'): 
-            Expression = Expression[ : max(Term_Division) + 1] + '[' + Expression[max(Term_Division) + 1 : ] + ']'
-        elif (Expression[max(Term_Division) + 1] == '['):
-            Expression = Expression[ : max(Term_Division) + 1] + '(' + Expression[max(Term_Division) + 1 : ] + ')'
+        elif (Expression[0] in ['(','{','['] and Expression[len(Expression) - 1] in [')','}',']']):
+            if (Expression[0] == '(' and Expression[len(Expression) - 1] == ')'):
+                Expression = '{' + Expression + '}'
+            elif (Expression[0] == '{' and Expression[len(Expression) - 1] == '}'):
+                Expression = '[' + Expression + ']'
+            elif (Expression[0] == '[' and Expression[len(Expression) - 1] == ']'):
+                Expression = '(' + Expression + ')'
+            elif (Expression[max(Term_Division) + 1] == '('):
+                Expression = Expression[ : max(Term_Division) + 1] + '{' + Expression[max(Term_Division) + 1 : ] + '}'
+            elif (Expression[max(Term_Division) + 1] == '{'): 
+                Expression = Expression[ : max(Term_Division) + 1] + '[' + Expression[max(Term_Division) + 1 : ] + ']'
+            elif (Expression[max(Term_Division) + 1] == '['):
+                Expression = Expression[ : max(Term_Division) + 1] + '(' + Expression[max(Term_Division) + 1 : ] + ')'
+        else :
+            if (Expression[0] == '('):
+                Expression = '{' + Expression + '}'
+            elif (Expression[0] == '{'):
+                Expression = '[' + Expression + ']'
+            elif (Expression[0] == '['):
+                Expression = '(' + Expression + ')'
         if (len(Expression) > 28):
             Limit_Reached = True
             raise IndexError ('Limit Exceeded')
@@ -136,6 +184,7 @@ def Bracket (Term_Division = [], Digits = 0, Limit_Reached = False):
             Equation.set('Error')
         Expression = ''
         Number_Sensor = ''
+
 
 def Equal(Limit_Reached = False): 
     try : 
@@ -182,6 +231,7 @@ def Clear():
     Expression = ''
     Number_Sensor = ''
     Equation.set(Expression)
+
 
 Clear_Button = Button(Root, text = 'C', font = ('Helvetica 14'), padx = 19, pady = 10, fg = 'black', bg = '#d4d4d2', command = Clear)
 Clear_Button.grid(row = 1, column = 0)
@@ -242,5 +292,6 @@ Brackets.grid(row = 5, column = 2)
 
 Equal_Button = Button(Root, text = '=', font = ('Helvetica 14'),padx = 20, pady = 10, fg = 'white', bg = '#ff9500', command = Equal)
 Equal_Button.grid(row = 5, column = 3)
+
 
 Root.mainloop()
